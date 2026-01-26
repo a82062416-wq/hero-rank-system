@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { AlertCircle, Trophy } from "lucide-react";
+import { AlertCircle, Trophy, BookOpen } from "lucide-react";
+import { useLocation } from "wouter";
 
 /**
  * 英雄榜查詢系統 - 登入頁面
@@ -14,6 +15,7 @@ import { AlertCircle, Trophy } from "lucide-react";
  */
 
 export default function Home() {
+  const [, navigate] = useLocation();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -133,6 +135,18 @@ export default function Home() {
         <div className="mt-6 text-center text-xs text-gray-600 space-y-1">
           <p>如有任何問題，請聯繫系統管理員</p>
           <p className="text-gray-500">© 2026 英雄榜查詢系統</p>
+        </div>
+
+        {/* 文檔網站連結 */}
+        <div className="mt-8 text-center">
+          <Button
+            onClick={() => navigate("/docs/overview")}
+            variant="outline"
+            className="inline-flex items-center gap-2 text-purple-600 border-purple-300 hover:bg-purple-50"
+          >
+            <BookOpen size={16} />
+            查看部署指南
+          </Button>
         </div>
       </div>
     </div>
