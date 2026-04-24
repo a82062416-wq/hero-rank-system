@@ -110,7 +110,7 @@ return [{ json: { report: textBlock?.text || '無法取得晨報' } }];
 |---|---|
 | Resource | Message |
 | Operation | Send |
-| To | 你的信箱地址 |
+| To | a82062416@gmail.com |
 | Subject | `台股晨報 {{ $now.toFormat('yyyy/MM/dd') }}` |
 | Email Type | Text |
 | Message | `{{ $json.report }}` |
