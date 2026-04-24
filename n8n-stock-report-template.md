@@ -84,28 +84,51 @@ Cron expression：30 8 * * 1-5
 
 週一到週五早上 8:30 觸發，週六日不跑。
 
----
-
-## 5. 取出回覆內容
-
-在後續節點（Line Notify / Gmail / Telegram）使用：
-
-```
-{{ $json.content[0].text }}
-```
-
-這就是 Claude 產出的晨報正文，直接推送即可。
+> 注意：若 n8n 時區設定為 UTC，需改為 `30 0 * * 1-5`，或至 n8n 設定將時區改為 `Asia/Taipei`。
 
 ---
 
-## 6. n8n 工作流節點順序
+## 5. Code 節點（取出晨報文字）
+
+HTTP Request 之後加一個 **Code 節點**，用來正確取出 Claude 回傳的文字內容。
+
+> 直接用 `content[0].text` 可能取到空值，因為 Claude 使用 web_search 時，content 陣列前幾項是工具呼叫紀錄，最後才是文字。
+
+```javascript
+const contents = $json.content;
+const textBlock = contents.filter(c => c.type === 'text').pop();
+return [{ json: { report: textBlock?.text || '無法取得晨報' } }];
+```
+
+---
+
+## 6. Gmail 節點設定
+
+在 Code 節點之後接 **Gmail 節點**，設定如下：
+
+| 欄位 | 值 |
+|---|---|
+| Resource | Message |
+| Operation | Send |
+| To | 你的信箱地址 |
+| Subject | `台股晨報 {{ $now.toFormat('yyyy/MM/dd') }}` |
+| Email Type | Text |
+| Message | `{{ $json.report }}` |
+
+**前置步驟：**
+1. 在 n8n Credentials 新增 **Gmail OAuth2** 憑證
+2. 以 Google 帳號授權後即可使用
+
+---
+
+## 7. n8n 工作流節點順序
 
 ```
 Schedule Trigger (8:30 weekdays)
     ↓
 HTTP Request (Claude API)
     ↓
-Set Node（取出 content[0].text）
+Code 節點（取出最後一個 text block）
     ↓
-Line Notify / Gmail / Telegram（推送給你）
+Gmail（寄送到你的信箱）
 ```
